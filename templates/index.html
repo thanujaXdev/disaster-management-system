@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Home - DisasterMS{% endblock %}
+{% block extra_css %}
+<style>
+  .hero { background: linear-gradient(135deg, #1e293b 0%, #dc2626 100%); color: #fff; padding: 4rem 0; }
+  .alert-strip { border-left: 4px solid; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+  .alert-strip.high { border-color: #dc2626; background: #fff1f2; }
+  .alert-strip.medium { border-color: #f97316; background: #fff7ed; }
+  .alert-strip.low { border-color: #16a34a; background: #f0fdf4; }
+</style>
+{% endblock %}
+{% block content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="container text-center">
+    <i class="fas fa-shield-alt fa-3x mb-3" style="color:#f97316"></i>
+    <h1 class="fw-bold mb-2">Disaster Management System</h1>
+    <p class="lead mb-4" style="color:#cbd5e1">Real-time disaster reporting, volunteer coordination &amp; shelter locator</p>
+    {% if not session.get('user_id') %}
+    <a href="{{ url_for('register') }}" class="btn btn-danger btn-lg me-2"><i class="fas fa-user-plus me-2"></i>Register Now</a>
+    <a href="{{ url_for('shelters') }}" class="btn btn-outline-light btn-lg"><i class="fas fa-map-marker-alt me-2"></i>Find Shelters</a>
+    {% else %}
+    <a href="{{ url_for('report_disaster') if session.get('role') == 'citizen' else url_for('admin_dashboard') if session.get('role') == 'admin' else url_for('volunteer_dashboard') }}" class="btn btn-danger btn-lg">
+      <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="container mt-4">
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card" style="background:#dc2626">
+        <div class="d-flex justify-content-between align-items-center">
+          <div><p class="mb-0 small opacity-75">Total Disasters</p><h2 class="fw-bold mb-0">{{ total_disasters }}</h2></div>
+          <i class="fas fa-fire fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card" style="background:#2563eb">
+        <div class="d-flex justify-content-between align-items-center">
+          <div><p class="mb-0 small opacity-75">Active Volunteers</p><h2 class="fw-bold mb-0">{{ total_volunteers }}</h2></div>
+          <i class="fas fa-hands-helping fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card" style="background:#16a34a">
+        <div class="d-flex justify-content-between align-items-center">
+          <div><p class="mb-0 small opacity-75">Cases Resolved</p><h2 class="fw-bold mb-0">{{ resolved }}</h2></div>
+          <i class="fas fa-check-circle fa-2x opacity-75"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Live Alerts -->
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <h5 class="fw-bold mb-3"><i class="fas fa-bell text-danger me-2"></i>Live Alerts</h5>
+        {% if alerts %}
+          {% for alert in alerts %}
+          <div class="alert-strip {{ alert.severity }}">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong style="font-size:0.9rem">{{ alert.title }}</strong>
+                <p class="mb-0 text-muted" style="font-size:0.8rem">{{ alert.message[:80] }}{% if alert.message|length > 80 %}...{% endif %}</p>
+              </div>
+              <span class="badge-{{ alert.severity }} ms-2">{{ alert.severity.upper() }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+            <p class="mb-0">No active alerts right now</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-md-6">
+      <div class="card p-4 h-100">
+        <h5 class="fw-bold mb-3"><i class="fas fa-bolt text-warning me-2"></i>Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('report_disaster') }}" class="btn btn-danger"><i class="fas fa-exclamation-triangle me-2"></i>Report a Disaster</a>
+          <a href="{{ url_for('shelters') }}" class="btn btn-primary"><i class="fas fa-map-marker-alt me-2"></i>Find Nearest Shelter</a>
+          {% if not session.get('user_id') %}
+          <a href="{{ url_for('register') }}" class="btn btn-outline-secondary"><i class="fas fa-hands-helping me-2"></i>Register as Volunteer</a>
+          {% endif %}
+        </div>
+        <hr>
+        <h6 class="fw-bold mb-2">How it works</h6>
+        <ul class="list-unstyled mb-0" style="font-size:0.875rem">
+          <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Citizens report disasters with photos</li>
+          <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Admin verifies and posts alerts</li>
+          <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Volunteers get assigned to affected zones</li>
+          <li><i class="fas fa-check text-success me-2"></i>Citizens find nearest relief shelters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

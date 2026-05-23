@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Volunteer Dashboard - DisasterMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="fas fa-hands-helping me-2"></i>Volunteer Dashboard</h1>
+    <p style="color:#94a3b8">Welcome, {{ session.get('name') }}</p>
+  </div>
+</div>
+<div class="container">
+  <div class="row g-4">
+    <div class="col-md-7">
+      <div class="card p-4">
+        <h5 class="fw-bold mb-3"><i class="fas fa-tasks text-primary me-2"></i>My Assignment</h5>
+        {% if volunteer and volunteer.assigned_task %}
+        <div class="p-3 rounded" style="background:#eff6ff;border-left:4px solid #2563eb">
+          <div class="mb-2"><span class="fw-semibold">Task:</span> {{ volunteer.assigned_task }}</div>
+          <div class="mb-2"><span class="fw-semibold">Location:</span> <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ volunteer.assigned_location }}</div>
+          <div><span class="fw-semibold">Status:</span>
+            <span class="badge ms-1" style="background:#2563eb;color:#fff">{{ volunteer.status.upper() }}</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="fas fa-clock fa-2x mb-2 text-warning"></i>
+          <p class="mb-0">No task assigned yet. Admin will assign you soon.</p>
+          <small>Your skills: <strong>{{ volunteer.skills if volunteer else 'Not listed' }}</strong></small>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="card p-4 mb-3">
+        <h6 class="fw-bold mb-3"><i class="fas fa-id-card text-primary me-2"></i>My Profile</h6>
+        <p class="mb-1"><strong>Name:</strong> {{ session.get('name') }}</p>
+        <p class="mb-1"><strong>Role:</strong> Volunteer</p>
+        <p class="mb-0"><strong>Skills:</strong> {{ volunteer.skills if volunteer else '—' }}</p>
+      </div>
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-bell text-warning me-2"></i>Active Alerts</h6>
+        {% for alert in alerts %}
+        <div class="mb-2 p-2 rounded" style="background:#f8fafc;border-left:3px solid #dc2626">
+          <strong style="font-size:0.85rem">{{ alert.title }}</strong>
+          <p class="mb-0 text-muted" style="font-size:0.75rem">{{ alert.message[:60] }}...</p>
+        </div>
+        {% else %}<p class="text-muted small text-center">No active alerts</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

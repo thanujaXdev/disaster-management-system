@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Manage Alerts - DisasterMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="fas fa-bell me-2"></i>Manage Alerts</h1>
+    <p style="color:#94a3b8">Post and manage public disaster alerts</p>
+  </div>
+</div>
+<div class="container">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-danger me-2"></i>Post New Alert</h6>
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Alert Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Flood warning in Krishna district" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Message</label>
+            <textarea name="message" class="form-control" rows="3" placeholder="Detailed alert message..." required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Severity</label>
+            <select name="severity" class="form-select">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 fw-bold">Post Alert</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-list text-danger me-2"></i>Active Alerts ({{ alerts|length }})</h6>
+        {% if alerts %}
+          {% for alert in alerts %}
+          <div class="d-flex justify-content-between align-items-start p-3 rounded mb-2" style="background:#f8fafc;border-left:4px solid {% if alert.severity == 'high' %}#dc2626{% elif alert.severity == 'medium' %}#f97316{% else %}#16a34a{% endif %}">
+            <div>
+              <strong style="font-size:0.9rem">{{ alert.title }}</strong>
+              <p class="mb-0 text-muted small">{{ alert.message[:100] }}...</p>
+              <small class="text-muted">{{ alert.created_at.strftime('%d %b %Y %H:%M') }}</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge-{{ alert.severity }}">{{ alert.severity.upper() }}</span>
+              <form method="POST" action="{{ url_for('delete_alert', id=alert.id) }}" onsubmit="return confirm('Delete this alert?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="text-center py-4 text-muted"><i class="fas fa-bell-slash fa-2x mb-2"></i><p>No alerts posted yet.</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

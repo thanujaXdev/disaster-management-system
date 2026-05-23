@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Manage Shelters - DisasterMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="fas fa-building me-2"></i>Manage Shelters</h1>
+    <p style="color:#94a3b8">Add and manage relief shelter locations</p>
+  </div>
+</div>
+<div class="container">
+  <div class="row g-4">
+    <div class="col-md-5">
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-success me-2"></i>Add New Shelter</h6>
+        <form method="POST">
+          <div class="mb-2">
+            <label class="form-label fw-semibold small">Shelter Name</label>
+            <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Government School, Vijayawada" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold small">Address</label>
+            <input type="text" name="address" class="form-control form-control-sm" placeholder="Full address" required>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-6">
+              <label class="form-label fw-semibold small">Latitude</label>
+              <input type="number" name="lat" class="form-control form-control-sm" step="any" placeholder="e.g. 16.5062" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold small">Longitude</label>
+              <input type="number" name="lng" class="form-control form-control-sm" step="any" placeholder="e.g. 80.6480" required>
+            </div>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-6">
+              <label class="form-label fw-semibold small">Total Capacity</label>
+              <input type="number" name="total_capacity" class="form-control form-control-sm" placeholder="200" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold small">Available Beds</label>
+              <input type="number" name="available_beds" class="form-control form-control-sm" placeholder="150" required>
+            </div>
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" name="has_medical" class="form-check-input" id="medical">
+            <label class="form-check-label small" for="medical">Has medical facility</label>
+          </div>
+          <button type="submit" class="btn btn-success w-100 btn-sm fw-bold">Add Shelter</button>
+        </form>
+        <div class="mt-3 p-2 rounded" style="background:#f0fdf4;font-size:0.78rem;color:#166534">
+          <strong>Tip:</strong> Get lat/lng from Google Maps → right-click any location → copy coordinates
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-list text-primary me-2"></i>Existing Shelters ({{ shelters|length }})</h6>
+        {% if shelters %}
+        <div class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead style="background:#f8fafc"><tr><th>Name</th><th>Beds</th><th>Medical</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for s in shelters %}
+              <tr>
+                <td>
+                  <strong style="font-size:0.875rem">{{ s.name }}</strong>
+                  <div class="text-muted" style="font-size:0.75rem">{{ s.address[:40] }}...</div>
+                </td>
+                <td><span class="text-success fw-bold">{{ s.available_beds }}</span>/{{ s.total_capacity }}</td>
+                <td>{% if s.has_medical %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-times-circle text-muted"></i>{% endif %}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_shelter', id=s.id) }}" onsubmit="return confirm('Delete this shelter?')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted"><i class="fas fa-building fa-2x mb-2"></i><p>No shelters added yet.</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

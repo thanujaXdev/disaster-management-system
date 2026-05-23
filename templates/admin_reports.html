@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Manage Reports - DisasterMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="fas fa-file-alt me-2"></i>Manage Reports</h1>
+    <p style="color:#94a3b8">Review and update disaster reports submitted by citizens</p>
+  </div>
+</div>
+<div class="container">
+  <!-- Filter -->
+  <div class="card p-3 mb-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="?status=all" class="btn btn-sm {% if status_filter == 'all' %}btn-danger{% else %}btn-outline-secondary{% endif %}">All</a>
+      <a href="?status=reported" class="btn btn-sm {% if status_filter == 'reported' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Reported</a>
+      <a href="?status=verified" class="btn btn-sm {% if status_filter == 'verified' %}btn-warning{% else %}btn-outline-secondary{% endif %}">Verified</a>
+      <a href="?status=resolved" class="btn btn-sm {% if status_filter == 'resolved' %}btn-success{% else %}btn-outline-secondary{% endif %}">Resolved</a>
+    </div>
+  </div>
+
+  {% if reports %}
+  <div class="row g-3">
+    {% for r in reports %}
+    <div class="col-md-6">
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 class="fw-bold mb-0"><i class="fas fa-fire text-danger me-1"></i>{{ r.disaster_type }}</h6>
+          <span class="status-{{ r.status }}">{{ r.status.upper() }}</span>
+        </div>
+        <p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ r.location }}</p>
+        <p class="mb-2 small">{{ r.description[:100] }}{% if r.description|length > 100 %}...{% endif %}</p>
+        {% if r.photo %}
+        <img src="{{ url_for('static', filename='uploads/' + r.photo) }}" class="img-fluid rounded mb-2" style="max-height:120px;object-fit:cover">
+        {% endif %}
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">By {{ r.reporter.name }} · {{ r.created_at.strftime('%d %b %Y') }}</small>
+          <form method="POST" action="{{ url_for('update_report_status', id=r.id) }}" class="d-flex gap-1">
+            <select name="status" class="form-select form-select-sm" style="width:130px">
+              <option value="reported" {% if r.status == 'reported' %}selected{% endif %}>Reported</option>
+              <option value="verified" {% if r.status == 'verified' %}selected{% endif %}>Verified</option>
+              <option value="resolved" {% if r.status == 'resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-danger">Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="fas fa-inbox fa-3x mb-3"></i>
+    <p>No reports found for this filter.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

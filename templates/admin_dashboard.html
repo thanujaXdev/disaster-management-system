@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - DisasterMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="fas fa-chart-bar me-2"></i>Admin Dashboard</h1>
+    <p style="color:#94a3b8">Overview of all disaster management activity</p>
+  </div>
+</div>
+<div class="container">
+  <!-- Stat Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="background:#dc2626">
+        <p class="mb-1 small opacity-75">Total Disasters</p>
+        <h3 class="fw-bold mb-0">{{ total_disasters }}</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="background:#f97316">
+        <p class="mb-1 small opacity-75">Pending Review</p>
+        <h3 class="fw-bold mb-0">{{ pending }}</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="background:#2563eb">
+        <p class="mb-1 small opacity-75">Volunteers</p>
+        <h3 class="fw-bold mb-0">{{ total_volunteers }}</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="background:#16a34a">
+        <p class="mb-1 small opacity-75">Resolved</p>
+        <h3 class="fw-bold mb-0">{{ resolved }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Chart -->
+    <div class="col-md-5">
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3"><i class="fas fa-chart-pie text-danger me-2"></i>Disaster Types</h6>
+        <canvas id="disasterChart" height="220"></canvas>
+      </div>
+    </div>
+    <!-- Recent Reports -->
+    <div class="col-md-7">
+      <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold mb-0"><i class="fas fa-file-alt text-danger me-2"></i>Recent Reports</h6>
+          <a href="{{ url_for('admin_reports') }}" class="btn btn-sm btn-outline-danger">View All</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm">
+            <thead style="background:#f8fafc"><tr><th>Type</th><th>Location</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              {% for r in recent_reports %}
+              <tr>
+                <td>{{ r.disaster_type }}</td>
+                <td>{{ r.location }}</td>
+                <td><span class="status-{{ r.status }}">{{ r.status.upper() }}</span></td>
+                <td style="font-size:0.8rem;color:#64748b">{{ r.created_at.strftime('%d %b') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="row g-3 mt-2">
+    <div class="col-6 col-md-3"><a href="{{ url_for('admin_reports') }}" class="btn btn-outline-danger w-100"><i class="fas fa-file-alt me-2"></i>Manage Reports</a></div>
+    <div class="col-6 col-md-3"><a href="{{ url_for('admin_volunteers') }}" class="btn btn-outline-primary w-100"><i class="fas fa-users me-2"></i>Manage Volunteers</a></div>
+    <div class="col-6 col-md-3"><a href="{{ url_for('admin_shelters') }}" class="btn btn-outline-success w-100"><i class="fas fa-building me-2"></i>Manage Shelters</a></div>
+    <div class="col-6 col-md-3"><a href="{{ url_for('admin_alerts') }}" class="btn btn-outline-warning w-100"><i class="fas fa-bell me-2"></i>Post Alert</a></div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  var labels = {{ disaster_types | map(attribute=0) | list | tojson }};
+  var data   = {{ disaster_types | map(attribute=1) | list | tojson }};
+  new Chart(document.getElementById('disasterChart'), {
+    type: 'doughnut',
+    data: {
+      labels: labels.length ? labels : ['No data'],
+      datasets: [{ data: data.length ? data : [1],
+        backgroundColor: ['#dc2626','#f97316','#2563eb','#16a34a','#7c3aed','#0891b2'] }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+</script>
+{% endblock %}
